@@ -20,7 +20,7 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     author='Milas Bowman',
     author_email='milasb@gmail.com',
-    description='Sending RF signals with low-cost GPIO modules on a Raspberry Pi',
+    description='Control household RF devices with low-cost GPIO modules',
     long_description=readme,
     url='https://github.com/milas/rfdevices',
     license='BSD',
@@ -39,6 +39,8 @@ setup(
         'rpi',
         'raspberry',
         'raspberry pi',
+        'adafruit',
+        'beaglebone',
         'rf',
         'gpio',
         'radio',
@@ -47,7 +49,7 @@ setup(
         '315',
         '315mhz'
     ],
-    install_requires=['RPi.GPIO'],
+    install_requires=['Adafruit-GPIO'],
     scripts=['scripts/rfsend'],
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={

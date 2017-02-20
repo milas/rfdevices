@@ -6,7 +6,7 @@ import logging
 import threading
 import time
 
-from RPi import GPIO
+from Adafruit_GPIO import GPIO
 
 from rfdevices.protocol import BasebandValue, Protocol, PulseOrder
 
@@ -16,18 +16,18 @@ log = logging.getLogger(__name__)
 class RFDevice:
     """Representation of a GPIO RF device."""
 
-    def __init__(self, gpio):
+    def __init__(self, pin: int, gpio: GPIO.BaseGPIO=None, **kwargs):
         """Initialize the RF device."""
-        self.gpio = gpio
+        self.pin = pin
+        self.gpio = gpio or GPIO.get_platform_gpio(**kwargs)
 
         self.tx_enabled = False
         self.lock = threading.Lock()
 
-        GPIO.setmode(GPIO.BCM)
-        log.debug("Using GPIO " + str(gpio))
+        log.debug("Using GPIO " + str(pin))
 
     def __enter__(self):
-        self.enable_tx()
+        self.setup()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -37,27 +37,18 @@ class RFDevice:
         """Disable TX and clean up GPIO."""
         with self.lock:
             if self.tx_enabled:
-                self.disable_tx()
-            log.debug("Cleanup")
-            GPIO.cleanup()
+                self.gpio.cleanup(pin=self.pin)
+                self.tx_enabled = False
+                log.debug("Cleanup")
 
-    def enable_tx(self):
+    def setup(self):
         """Enable TX, set up GPIO."""
         with self.lock:
             if not self.tx_enabled:
-                GPIO.setup(self.gpio, GPIO.OUT)
+                self.gpio.setup(pin=self.pin, mode=GPIO.OUT)
                 self.tx_enabled = True
                 log.debug("TX enabled")
             return True
-
-    def disable_tx(self):
-        """Disable TX, reset GPIO."""
-        if self.tx_enabled:
-            # set up GPIO pin as input for safety
-            GPIO.setup(self.gpio, GPIO.IN)
-            self.tx_enabled = False
-            log.debug("TX disabled")
-        return True
 
     def tx_code(self, code: int, tx_proto: Protocol):
         """
@@ -110,17 +101,17 @@ class RFDevice:
             return False
 
         def low():
-            GPIO.output(self.gpio, GPIO.LOW)
+            self.gpio.output(pin=self.pin, value=GPIO.LOW)
             time.sleep((value.low * pulse_length) / 1000000)
 
         def high():
-            GPIO.output(self.gpio, GPIO.HIGH)
+            self.gpio.output(pin=self.pin, value=GPIO.HIGH)
             time.sleep((value.high * pulse_length) / 1000000)
 
         if pulse_order is PulseOrder.LowHigh:
             low()
             high()
-            GPIO.output(self.gpio, GPIO.LOW)
+            self.gpio.output(pin=self.pin, value=GPIO.LOW)
         elif pulse_order is PulseOrder.HighLow:
             high()
             low()
