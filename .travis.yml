@@ -13,9 +13,7 @@ cache: pip
 
 install:
   - pip install -r requirements.txt
-  - pip install -r test-requirements.txt
   - pip install flake8
-  - pip uninstall -y RPi.GPIO
 script:
   - flake8 rfdevices/
   - nosetests tests/

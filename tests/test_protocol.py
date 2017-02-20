@@ -1,9 +1,6 @@
 import unittest
 
-from mock_import import mock_import
-
-with mock_import():
-    from rfdevices.protocol import BasebandValue, Protocol, PulseOrder
+from rfdevices.protocol import BasebandValue, Protocol, PulseOrder
 
 
 class TestProtocol(unittest.TestCase):
