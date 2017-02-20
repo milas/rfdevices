@@ -1,19 +1,34 @@
 language: python
 python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7-dev"
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7-dev
 
 matrix:
   allow_failures:
     - python: 3.7-dev
 
+addons:
+  apt:
+    packages:
+      - pandoc
+
 cache: pip
 
 install:
   - pip install -r requirements.txt
-  - pip install flake8
+  - pip install flake8 pypandoc
+
 script:
   - flake8 rfdevices/
   - nosetests tests/
+
+deploy:
+  provider: pypi
+  distributions: "sdist bdist_wheel"
+  user: milas
+  password:
+    secure: IvWzRxqWP0uU9nGIo/uJXJD1fWgg/BsKuMTeCtRjYhb/d3tn+5myzcZU+Iu+35o6Zizx70azlxniMrbKIrqK0gV45dcPQM0Y59mb+XCloStpsGa1hQYkxkeMzUUvAKH+SLytK89g84aw/1FnPF6uHePgqcEdhsSP3w+YxbxZvFw/H9SsTmgoICeaLPWtMUJ4uD8Z+vjZZIcxnxQTx8IGsdywrY73W7JaTDHbfZyL3dB86pd7p5tFF8JUHlAwR1EnR7e9vcgnQlmmSTGe6tlLifH9UsLoL5YfDvE2qZzKEnQY7p46Uu/o3xT/Ihv/ctk2q9GbTryDdeYmwy5d3erON3v5GUM6wel5mS/i4p8pqLHQLwbC/pKzOte2Qwycimq/Rk4y1Nre3LdvQMXKYBd7yUBYlyRsM4wxMFnmxRmDmqWHTXIJn7exOMB88FFWU2yJFLVd+1V68v0dnlqJ1cxeOe5n42Tzn+DdHEWwgELaVfWbQPg0jSRHDcyuBSM4rV2wqBppgHCX5XFv8dd7/oja2dYQT1pVyp9RSU9/uJtTavv9JthCsm1nlHktqo8HcvCPoVwGDqm2ZEgFCdj2QD1Qp+A//KFJNYVISDxXXNhSWwx3XL9ix7Ormf1KFKWG0E5+W/3XCs6eA3Xkqni4nqS8BB6nEsHQ7AixwFevQNJiiqo=
+  on:
+    tags: true
