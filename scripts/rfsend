@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import sys
+
+from rfdevices import RFDevice
+from rfdevices.config import get_protocol
+
+logging.basicConfig(level=logging.WARNING, datefmt='%Y-%m-%d %H:%M:%S',
+                    format='%(asctime)-15s - [%(levelname)s] %(module)s: %(message)s',)
+
+parser = argparse.ArgumentParser(description='Sends a decimal code via an RF GPIO device')
+parser.add_argument('-v', '--verbose', action='store_true', default=False)
+parser.add_argument('-g', '--gpio', type=int, help="GPIO pin")
+parser.add_argument('-b', '--binary', action='store_true', default=False)
+parser.add_argument('-t', '--protocol', type=str, help="Protocol", required=True)
+parser.add_argument('code', metavar='CODE', type=str, help="Code to send")
+args = parser.parse_args()
+
+if args.verbose:
+    logging.basicConfig(level=logging.DEBUG)
+
+proto = get_protocol(args.protocol)
+if not proto:
+    print('Unknown protocol:', args.protocol)
+    sys.exit(1)
+
+with RFDevice(args.gpio) as rf:
+    if args.binary:
+        rf.tx_bin(args.code, proto)
+    else:
+        rf.tx_code(int(args.code), proto)
