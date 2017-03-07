@@ -1,4 +1,5 @@
 import os
+import sys
 
 from setuptools import setup, find_packages
 
@@ -14,10 +15,22 @@ except ImportError:
     with open(readme_path, 'r', encoding='utf-8') as f:
         readme = f.read()
 
+install_requires = ['Adafruit-GPIO']
+if sys.version_info[0] == 3 and sys.version_info[1] < 5:
+    # need backport typing package
+    install_requires.append('typing')
+
+
 setup(
     name='rfdevices',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
+    install_requires=install_requires,
+    scripts=['scripts/rfsend'],
+    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    package_data={
+        'rfdevices': ['protocols/*.conf']
+    },
     author='Milas Bowman',
     author_email='milasb@gmail.com',
     description='Control household RF devices with low-cost GPIO modules',
@@ -48,11 +61,5 @@ setup(
         '433mhz',
         '315',
         '315mhz'
-    ],
-    install_requires=['Adafruit-GPIO'],
-    scripts=['scripts/rfsend'],
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    package_data={
-        'rfdevices': ['protocols/*.conf']
-    }
+    ]
 )

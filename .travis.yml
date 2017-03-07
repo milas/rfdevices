@@ -17,6 +17,7 @@ addons:
 cache: pip
 
 install:
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install -r requirements-3.4.txt; fi
   - pip install -r requirements.txt
   - pip install flake8 pypandoc
 
