@@ -1,16 +1,19 @@
 import unittest
 
-from rfdevices import BasebandValue, Protocol, PulseOrder, config
+from rfdevices import BasebandValue, Protocol, PulseOrder, config, const
 
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
         config.protocols = {}
+        config.codes = {}
         self.assertDictEqual(config.protocols, {})
+        self.assertDictEqual(config.codes, {})
 
     @classmethod
     def tearDownClass(cls):
         config.protocols = {}
+        config.codes = {}
 
     def test_load_config(self):
         config.load_config()
@@ -46,3 +49,23 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(protocol.message_length, 12)
         self.assertEqual(protocol.repeat, 10)
+
+        self.assertDictEqual(protocol.codes, config.codes['uc7070t'])
+        self.assertDictEqual(protocol.codes,
+                             {
+                                 const.CODE_TOGGLE_SWITCH: '1{pin}0000001',
+                                 const.CODE_FAN_OFF: '1{pin}0000010',
+                                 const.CODE_FAN_LOW: '1{pin}0001000',
+                                 const.CODE_FAN_MEDIUM: '1{pin}0010000',
+                                 const.CODE_FAN_HIGH: '1{pin}0100000'
+                             })
+
+    def test_get_protocol_shared_codes(self):
+        protocol = config.get_protocol('rcswitch-1')
+        self.assertNotIn('rcswitch-1', config.codes)
+        self.assertDictEqual(protocol.codes, config.codes['rcswitch'])
+        self.assertDictEqual(protocol.codes,
+                             {
+                                 const.CODE_TURN_ON_SWITCH: '{group}{device}10',
+                                 const.CODE_TURN_OFF_SWITCH: '{group}{device}01'
+                             })
